@@ -1,0 +1,36 @@
+const BG_APP = "#222"
+const BG_PRIMARY = "#000"
+const FG_PRIMARY = "#EEE"
+
+const IOS_STATUS_BAR_HEIGHT = 20
+
+import { StyleSheet, StatusBar } from "react-native"
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: BG_APP,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  text: {
+    color: FG_PRIMARY,
+  },
+
+  h1: {
+    color: FG_PRIMARY,
+    fontSize: 24
+  },
+
+  header: {
+    backgroundColor: BG_PRIMARY,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    paddingTop: (StatusBar.currentHeight ?? IOS_STATUS_BAR_HEIGHT) + 10
+  }
+});
+
+export default styles;
