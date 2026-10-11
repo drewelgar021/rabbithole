@@ -20,9 +20,9 @@ export default function Tab() {
 
     return (
         <View style={styles.container}>
-            <ScrollView>
+            <ScrollView style={styles.scrollView}>
                 <View style={styles.form}>
-                    <Text style={styles.text}>Songs</Text>
+                    <Text style={styles.h2}>Songs</Text>
                     {songs.map((song, index) =>
                         <TextInput
                             style={styles.textInput}

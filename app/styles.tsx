@@ -15,6 +15,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
 
+    scrollView: {
+        padding: 10,
+    },
+
     text: {
         color: FG_PRIMARY,
     },
@@ -22,6 +26,13 @@ const styles = StyleSheet.create({
     h1: {
         color: FG_PRIMARY,
         fontSize: 24,
+        marginBottom: 5,
+    },
+    
+    h2: {
+        color: FG_PRIMARY,
+        fontSize: 20,
+        marginBottom: 5,
     },
 
     header: {
@@ -48,7 +59,6 @@ const styles = StyleSheet.create({
         width: "100%",
         padding: 10,
         margin: 5
-
     }
 });
 
