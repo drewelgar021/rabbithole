@@ -102,6 +102,8 @@ export default function Tab() {
                                 onChangeText={(newSong) =>
                                     onChangeTextSong(index, newSong)
                                 }
+                                placeholder="Song Name"
+                                placeholderTextColor="#777"
                             />
                             <TouchableOpacity style={styles.button} onPress={() => deleteSong(index)}>
                                 <FontAwesome size={24} name="trash-o" color="#FFF" />
@@ -123,6 +125,8 @@ export default function Tab() {
                                 onChangeText={(newArtist) =>
                                     onChangeTextArtist(index, newArtist)
                                 }
+                                placeholder="Artist Name"
+                                placeholderTextColor="#777"
                             />
                             <TouchableOpacity style={styles.button} onPress={() => deleteArtist(index)}>
                                 <FontAwesome size={24} name="trash-o" color="#FFF" />
