@@ -30,12 +30,36 @@ export default function Tab() {
     }
 
     /**
+     * Updates an artist in the `artists` state variable.
+     * It is assumed that `index` is not out of bounds.
+     *
+     * @param index: The index of the song in `songs` to update.
+     */
+    function onChangeTextArtist(index: number, newArtist: string) {
+        const top = artists.slice(0, index);
+        const bottom =
+            index < artists.length - 1
+                ? artists.slice(index + 1, artists.length)
+                : [];
+        setArtists([...top, newArtist, ...bottom]);
+    }
+
+    /**
      * Adds an empty song to the `songs` array in state.
      * As the songs form is a map of `songs`, this will make a new, empty songs input appear.
      *
      */
     function addSong() {
         setSongs([...songs, ""]);
+    }
+
+    /**
+     * Adds an empty artist to the `artists` array in state.
+     * As the artists form is a map of `artists`, this will make a new, empty artists input appear.
+     *
+     */
+    function addArtist() {
+        setArtists([...artists, ""]);
     }
 
     /**
@@ -51,9 +75,23 @@ export default function Tab() {
         setSongs([...top, ...bottom])
     }
 
+    /**
+     * Deletes the artist at the specified index from the `artists` array in state.
+     *
+     * @param index: The index of the artist to delete.
+    */
+    function deleteArtist(index: number) {
+        const top = artists.slice(0, index);
+        const bottom = index < artists.length - 1
+            ? artists.slice(index + 1, artists.length)
+            : []
+        setArtists([...top, ...bottom])
+    }
+
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
+
                 <View style={styles.form}>
                     <Text style={styles.h2}>Songs</Text>
                     {songs.map((song, index) => (
@@ -74,6 +112,28 @@ export default function Tab() {
                         <Text style={styles.text}>Add Song</Text>
                     </TouchableOpacity>
                 </View>
+
+                <View style={styles.form}>
+                    <Text style={styles.h2}>Artists</Text>
+                    {artists.map((artist, index) => (
+                        <View style={styles.horizontal} key={index}>
+                            <TextInput
+                                style={styles.textInput}
+                                value={artist}
+                                onChangeText={(newArtist) =>
+                                    onChangeTextArtist(index, newArtist)
+                                }
+                            />
+                            <TouchableOpacity style={styles.button} onPress={() => deleteArtist(index)}>
+                                <FontAwesome size={24} name="trash-o" color="#FFF" />
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                    <TouchableOpacity style={styles.button} onPress={addArtist}>
+                        <Text style={styles.text}>Add Artist</Text>
+                    </TouchableOpacity>
+                </View>
+
             </ScrollView>
         </View>
     );
