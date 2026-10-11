@@ -1,7 +1,7 @@
 const BG_APP = "#222";
 const BG_PRIMARY = "#000";
 const FG_PRIMARY = "#EEE";
-const FG_SECONDARY = "#AAA"
+const FG_SECONDARY = "#777"
 
 const IOS_STATUS_BAR_HEIGHT = 20;
 
@@ -56,9 +56,22 @@ const styles = StyleSheet.create({
         borderColor: FG_SECONDARY,
         borderWidth: 1,
         borderRadius: 10,
-        width: "100%",
+        minWidth: "75%",
         padding: 10,
         margin: 5
+    },
+
+    button: {
+        color: FG_PRIMARY,
+        backgroundColor: FG_SECONDARY,
+        borderRadius: 10,
+        padding: 10,
+        margin: 5
+    },
+
+    horizontal: {
+        flex: 1,
+        flexDirection: "row",
     }
 });
 

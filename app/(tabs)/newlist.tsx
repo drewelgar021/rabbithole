@@ -1,10 +1,18 @@
-import { View, Text, ScrollView, TextInput } from "react-native";
+import {
+    View,
+    Text,
+    ScrollView,
+    TextInput,
+    Pressable,
+    TouchableOpacity,
+} from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import styles from "../styles";
 import { useState } from "react";
 
 export default function Tab() {
-    const [songs, setSongs] = useState(["Scavenger of Human Sorrow", "Spirit Crusher", "Story to Tell"]);
-    const [artists, setArtists] = useState(["Death"]);
+    const [songs, setSongs] = useState<string[]>([]);
+    const [artists, setArtists] = useState<string[]>([]);
 
     /**
      * Updates a song in the `songs` state variable.
@@ -14,8 +22,33 @@ export default function Tab() {
      */
     function onChangeTextSong(index: number, newSong: string) {
         const top = songs.slice(0, index);
-        const bottom = index < songs.length - 1 ? songs.slice(index + 1, songs.length) : [];
-        setSongs([...top, newSong, ...bottom])
+        const bottom =
+            index < songs.length - 1
+                ? songs.slice(index + 1, songs.length)
+                : [];
+        setSongs([...top, newSong, ...bottom]);
+    }
+
+    /**
+     * Adds an empty song to the `songs` array in state.
+     * As the songs form is a map of `songs`, this will make a new, empty songs input appear.
+     *
+     */
+    function addSong() {
+        setSongs([...songs, ""]);
+    }
+
+    /**
+     * Deletes the song at the specified index from the `songs` array in state.
+     *
+     * @param index: The index of the song to delete.
+    */
+    function deleteSong(index: number) {
+        const top = songs.slice(0, index);
+        const bottom = index < songs.length - 1
+            ? songs.slice(index + 1, songs.length)
+            : []
+        setSongs([...top, ...bottom])
     }
 
     return (
@@ -23,15 +56,24 @@ export default function Tab() {
             <ScrollView style={styles.scrollView}>
                 <View style={styles.form}>
                     <Text style={styles.h2}>Songs</Text>
-                    {songs.map((song, index) =>
-                        <TextInput
-                            style={styles.textInput}
-                            value={songs[index]}
-                            onChangeText={(newSong) => onChangeTextSong(index, newSong)}
-                            key={index}
-                        />
-                    )}
-
+                    {songs.map((song, index) => (
+                        <View style={styles.horizontal}>
+                            <TextInput
+                                style={styles.textInput}
+                                value={song}
+                                onChangeText={(newSong) =>
+                                    onChangeTextSong(index, newSong)
+                                }
+                                key={index}
+                            />
+                            <TouchableOpacity style={styles.button} onPress={() => deleteSong(index)}>
+                                <FontAwesome size={24} name="trash-o" color="#FFF" />
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                    <TouchableOpacity style={styles.button} onPress={addSong}>
+                        <Text style={styles.text}>Add Song</Text>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
         </View>
