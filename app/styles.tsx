@@ -2,6 +2,7 @@ const BG_APP = "#222";
 const BG_PRIMARY = "#000";
 const FG_PRIMARY = "#EEE";
 const FG_SECONDARY = "#777"
+const ACCENT = "#FA5"
 
 const IOS_STATUS_BAR_HEIGHT = 20;
 
@@ -65,6 +66,14 @@ const styles = StyleSheet.create({
     button: {
         color: FG_PRIMARY,
         backgroundColor: FG_SECONDARY,
+        borderRadius: 10,
+        padding: 10,
+        margin: 5
+    },
+
+    buttonAccent: {
+        color: FG_PRIMARY,
+        backgroundColor: ACCENT,
         borderRadius: 10,
         padding: 10,
         margin: 5
