@@ -10,7 +10,7 @@ import styles from "../styles";
 import { useState } from "react";
 import List from "../List";
 
-type Song = { title: string, artist: string };
+type Song = { title: string; artist: string };
 
 const INSTRUCTIONS = `You are a music recommendation assistant. Given a list of songs and a list of 
 artists provided by the user, you are to provide a list of up to 10 songs that you would recommend 
@@ -18,7 +18,7 @@ to the user based on the songs and artists that they provide. Your response will
 form: { title: string, artist: string}[]. Song names can be ambiguous, so you should aim to 
 associate user provided song names with the provided artist names, or the provided artists' musical 
 genres. Your response should only contain the JSON array of song recommendations, and nothing else. 
-Do not use markdown code fences. Aim to provide songs from at least 2 artists that are not provided 
+Do not use markdown code fences. Aim to provide songs from at least 1 artist that is not provided 
 by the user.`;
 
 export default function Tab() {
@@ -98,6 +98,12 @@ export default function Tab() {
     setArtists([...top, ...bottom]);
   }
 
+  function clear() {
+    setSongs([]);
+    setArtists([]);
+    setList(undefined);
+  }
+
   async function generateList() {
     const response = await fetch(
       "https://comp2140-3ea651da.uqcloud.net/api/_ai/v1/chat/completions",
@@ -123,7 +129,8 @@ export default function Tab() {
         }),
       },
     );
-    if (!response.ok) throw new Error(`${response.status}: ${await response.text()}`);
+    if (!response.ok)
+      throw new Error(`${response.status}: ${await response.text()}`);
     const data = await response.json();
     setList(JSON.parse(data.choices[0].message.content));
   }
@@ -196,9 +203,14 @@ export default function Tab() {
           </View>
         )}
         {list && (
-          <View style={{width: "100%"}}>
+          <>
             <List songs={list} />
-          </View>
+            <View style={styles.container}>
+              <TouchableOpacity style={styles.button} onPress={clear}>
+                <Text style={styles.text}>Clear</Text>
+              </TouchableOpacity>
+            </View>
+          </>
         )}
       </ScrollView>
     </View>
