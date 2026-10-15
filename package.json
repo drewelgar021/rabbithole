@@ -12,7 +12,9 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
-    "react-native-paper": "^5.15.3"
+    "react-native-paper": "^5.15.3",
+    "react-native-svg": "^15.15.5",
+    "react-qr-code": "^2.2.0"
   },
   "scripts": {
     "start": "expo start",

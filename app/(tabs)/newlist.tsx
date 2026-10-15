@@ -9,6 +9,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import styles from "../styles";
 import { useState } from "react";
 import List from "../List";
+import QRCode from "react-qr-code";
 
 type Song = { title: string; artist: string };
 
@@ -209,6 +210,12 @@ export default function Tab() {
               <TouchableOpacity style={styles.button} onPress={clear}>
                 <Text style={styles.text}>Clear</Text>
               </TouchableOpacity>
+            </View>
+            <View style={styles.container}>
+              <View style={{backgroundColor: "#FFF", padding: 5, margin: 20}}>
+              <QRCode size={256}
+                value={JSON.stringify(list)} />
+            </View>
             </View>
           </>
         )}
