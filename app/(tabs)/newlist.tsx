@@ -3,23 +3,23 @@ import {
   Text,
   ScrollView,
   TextInput,
-  Pressable,
   TouchableOpacity,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import styles from "../styles";
 import { useState } from "react";
-import cors from "cors";
+import List from "../List";
 
-type Song = { title: string; artist: string; youtube: string };
+type Song = { title: string, artist: string };
 
-const INSTRUCTIONS = `You are a music recommendation assistant. Given a list of songs and a list of
-artists provided by the user, you are to provide a list of songs that you would recommend to the 
-user based on the songs and artists that they provide. Your response will be in JSON of the form: 
-{ title, artist, youtube }[], where the youtube field is a link to the song on youtube. Song names 
-can be ambiguous, so you should aim to associate user provided song names with the provided artist 
-names, or the provided artists' musical genres. Your response should only contain the JSON array of 
-song recommendations, and nothing else. Aim to provide a mixture of artists.`
+const INSTRUCTIONS = `You are a music recommendation assistant. Given a list of songs and a list of 
+artists provided by the user, you are to provide a list of up to 10 songs that you would recommend 
+to the user based on the songs and artists that they provide. Your response will be in JSON of the 
+form: { title: string, artist: string}[]. Song names can be ambiguous, so you should aim to 
+associate user provided song names with the provided artist names, or the provided artists' musical 
+genres. Your response should only contain the JSON array of song recommendations, and nothing else. 
+Do not use markdown code fences. Aim to provide songs from at least 2 artists that are not provided 
+by the user.`;
 
 export default function Tab() {
   const [songs, setSongs] = useState<string[]>([]);
@@ -118,83 +118,88 @@ export default function Tab() {
             {
               role: "user",
               content: `Songs: ${songs}\n Artists: ${artists}`,
-            }
+            },
           ],
         }),
       },
     );
-    if (!response.ok) throw new Error(`${response.status}: ${response.text}`);
+    if (!response.ok) throw new Error(`${response.status}: ${await response.text()}`);
     const data = await response.json();
-    setList(data.choices[0].message.content);
+    setList(JSON.parse(data.choices[0].message.content));
   }
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <View style={styles.form}>
-          <Text style={styles.h2}>Songs</Text>
-          {songs.map((song, index) => (
-            <View style={styles.horizontal} key={index}>
-              <TextInput
-                style={styles.textInput}
-                value={song}
-                onChangeText={(newSong) => onChangeTextSong(index, newSong)}
-                placeholder="Song Name"
-                placeholderTextColor="#777"
-              />
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => deleteSong(index)}
-              >
-                <FontAwesome size={24} name="trash-o" color="#FFF" />
-              </TouchableOpacity>
-            </View>
-          ))}
-          <TouchableOpacity style={styles.button} onPress={addSong}>
-            <Text style={styles.text}>Add Song</Text>
-          </TouchableOpacity>
-        </View>
+        {!list && (
+          <View style={styles.form}>
+            <Text style={styles.h2}>Songs</Text>
+            {songs.map((song, index) => (
+              <View style={styles.horizontal} key={index}>
+                <TextInput
+                  style={styles.textInput}
+                  value={song}
+                  onChangeText={(newSong) => onChangeTextSong(index, newSong)}
+                  placeholder="Song Name"
+                  placeholderTextColor="#777"
+                />
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => deleteSong(index)}
+                >
+                  <FontAwesome size={24} name="trash-o" color="#FFF" />
+                </TouchableOpacity>
+              </View>
+            ))}
+            <TouchableOpacity style={styles.button} onPress={addSong}>
+              <Text style={styles.text}>Add Song</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-        <View style={styles.form}>
-          <Text style={styles.h2}>Artists</Text>
-          {artists.map((artist, index) => (
-            <View style={styles.horizontal} key={index}>
-              <TextInput
-                style={styles.textInput}
-                value={artist}
-                onChangeText={(newArtist) =>
-                  onChangeTextArtist(index, newArtist)
-                }
-                placeholder="Artist Name"
-                placeholderTextColor="#777"
-              />
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => deleteArtist(index)}
-              >
-                <FontAwesome size={24} name="trash-o" color="#FFF" />
-              </TouchableOpacity>
-            </View>
-          ))}
-          <TouchableOpacity style={styles.button} onPress={addArtist}>
-            <Text style={styles.text}>Add Artist</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.container}>
+        {!list && (
+          <View style={styles.form}>
+            <Text style={styles.h2}>Artists</Text>
+            {artists.map((artist, index) => (
+              <View style={styles.horizontal} key={index}>
+                <TextInput
+                  style={styles.textInput}
+                  value={artist}
+                  onChangeText={(newArtist) =>
+                    onChangeTextArtist(index, newArtist)
+                  }
+                  placeholder="Artist Name"
+                  placeholderTextColor="#777"
+                />
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => deleteArtist(index)}
+                >
+                  <FontAwesome size={24} name="trash-o" color="#FFF" />
+                </TouchableOpacity>
+              </View>
+            ))}
+            <TouchableOpacity style={styles.button} onPress={addArtist}>
+              <Text style={styles.text}>Add Artist</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-          {songs.length + artists.length > 0 && !list && (
+        {songs.length + artists.length > 0 && !list && (
+          <View style={styles.container}>
             <TouchableOpacity
               style={styles.buttonAccent}
               onPress={generateList}
             >
               <Text style={styles.text}>Generate</Text>
             </TouchableOpacity>
-          )}
-          {list &&
-            <Text style={styles.text}>{JSON.stringify(list)}</Text>
-          }
-
-        </View>
+          </View>
+        )}
+        {list && (
+          <View style={{width: "100%"}}>
+            <List songs={list} />
+          </View>
+        )}
       </ScrollView>
     </View>
   );
