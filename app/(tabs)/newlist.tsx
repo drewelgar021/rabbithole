@@ -4,12 +4,14 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import styles from "../styles";
 import { useState } from "react";
 import List from "../List";
 import QRCode from "react-qr-code";
+import { File, Paths } from "expo-file-system";
 
 type Song = { title: string; artist: string };
 
@@ -26,6 +28,11 @@ export default function Tab() {
   const [songs, setSongs] = useState<string[]>([]);
   const [artists, setArtists] = useState<string[]>([]);
   const [list, setList] = useState<Song[]>();
+  const [saveModalVisibility, setSaveModalVisibility] = useState(false);
+  const [saveFileName, setSaveFileName] = useState("");
+  const [saveSuccessModalVisibility, setSaveSuccessModalVisibility] =
+    useState(false);
+  const [saveError, setSaveError] = useState(false);
 
   /**
    * Updates a song in the `songs` state variable.
@@ -99,12 +106,21 @@ export default function Tab() {
     setArtists([...top, ...bottom]);
   }
 
+  /**
+   * Resets the song and artists lists in state, as well as the recommendations
+   * list if one has been generated.
+   */
   function clear() {
     setSongs([]);
     setArtists([]);
     setList(undefined);
   }
 
+  /**
+   * Fetches a list of song recommendations from the LLM, using the provided
+   * songs and artists (in state variables) in a prompt asking for similar
+   * songs.
+   */
   async function generateList() {
     const response = await fetch(
       "https://comp2140-3ea651da.uqcloud.net/api/_ai/v1/chat/completions",
@@ -134,6 +150,35 @@ export default function Tab() {
       throw new Error(`${response.status}: ${await response.text()}`);
     const data = await response.json();
     setList(JSON.parse(data.choices[0].message.content));
+  }
+
+  /**
+   * Closes the save modal and clears the save file name in state.
+   */
+  function closeSaveModal() {
+    setSaveModalVisibility(false);
+    setSaveFileName("");
+    setSaveError(false);
+  }
+
+  /**
+   * Saves the currently loaded list to the file system.
+   * Does nothing if the filename is empty.
+   */
+  function save() {
+    if (!saveFileName) return;
+    try {
+      const file = new File(Paths.cache, `${saveFileName}.list`);
+      if (file.exists) file.delete();
+      file.create();
+      file.write(JSON.stringify(list));
+      setSaveModalVisibility(false);
+      setSaveSuccessModalVisibility(true);
+      setSaveFileName("");
+    } catch (error) {
+      console.error(error);
+      setSaveError(true);
+    }
   }
 
   return (
@@ -210,15 +255,85 @@ export default function Tab() {
               <TouchableOpacity style={styles.button} onPress={clear}>
                 <Text style={styles.text}>Clear</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setSaveModalVisibility(true)}
+              >
+                <Text style={styles.text}>Save</Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.container}>
-              <View style={{backgroundColor: "#FFF", padding: 5, margin: 20}}>
-              <QRCode size={256}
-                value={JSON.stringify(list)} />
-            </View>
+              <View style={{ backgroundColor: "#FFF", padding: 5, margin: 20 }}>
+                <QRCode size={256} value={JSON.stringify(list)} />
+              </View>
             </View>
           </>
         )}
+
+        <Modal
+          animationType="slide"
+          transparent
+          visible={saveModalVisibility}
+          presentationStyle="overFullScreen"
+          onDismiss={() => setSaveModalVisibility(false)}
+        >
+          <View style={styles.modalWrapper}>
+            <View style={styles.modal}>
+              <View style={styles.form}>
+                <Text style={styles.h2}>Save List</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="List Name"
+                  placeholderTextColor="#777"
+                  value={saveFileName}
+                  onChangeText={setSaveFileName}
+                />
+                {!saveFileName && (
+                  <Text style={{ color: "#F00" }}>
+                    List name cannot be empty.
+                  </Text>
+                )}
+                {saveError && (
+                  <Text style={{ color: "#F00" }}>
+                    There was an error saving the file.
+                  </Text>
+                )}
+                <TouchableOpacity style={styles.button} onPress={save}>
+                  <Text style={styles.text}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={closeSaveModal}
+                >
+                  <Text style={styles.text}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent
+          visible={saveSuccessModalVisibility}
+          presentationStyle="overFullScreen"
+          onDismiss={() => setSaveSuccessModalVisibility(false)}
+        >
+          <View style={styles.modalWrapper}>
+            <View style={styles.modal}>
+              <View style={styles.form}>
+                <Text style={styles.h2}>List Saved</Text>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setSaveSuccessModalVisibility(false)}
+                >
+                  <Text style={styles.text}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
       </ScrollView>
     </View>
   );
