@@ -4,6 +4,7 @@ import styles from "../styles";
 import { File, Directory, Paths } from "expo-file-system";
 import List from "../List";
 import QRCode from "react-qr-code";
+import { FontAwesome } from "@expo/vector-icons";
 
 type Song = { title: string; artist: string };
 
@@ -40,6 +41,22 @@ export default function Tab() {
     }
   }
 
+  /**
+   * Deletes the list with the specified filename.
+   *
+   * @param filename - The filename of the list to delete, including the ".list"
+   *               extension.
+   */
+  function deleteList(filename: string) {
+    try {
+      const file = new File(Paths.document, filename);
+      file.delete();
+    } catch (error) {
+      console.log(error);
+    }
+    getLists();
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -49,32 +66,46 @@ export default function Tab() {
             <TouchableOpacity onPress={getLists} style={styles.button}>
               <Text style={styles.text}>Refresh</Text>
             </TouchableOpacity>
-            {fileOpenError && <Text style={{color: "#F00"}}>Error opening list.</Text>}
+            {fileOpenError && (
+              <Text style={{ color: "#F00" }}>Error opening list.</Text>
+            )}
             {lists
               .filter((file) => file.name.endsWith(".list"))
               .map((list, index) => (
-                <TouchableOpacity
-                  onPress={() => load(list.name)}
+                <View
                   key={index}
                   style={{
                     flex: 1,
-                    justifyContent: "center",
+                    flexDirection: "row",
                     alignItems: "center",
+                    justifyContent: "center",
                     minWidth: "80%",
-                    padding: 10,
                     borderColor: "#777",
                     borderBottomWidth: 1,
                   }}
                 >
-                  <Text style={styles.text}>
-                    {list.name.slice(0, list.name.length - 5)}
-                  </Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => load(list.name)}
+                    style={{
+                      flex: 1,
+                      padding: 10,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={styles.text}>
+                      {list.name.slice(0, list.name.length - 5)}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.button} onPress={() => deleteList(list.name)}>
+                    <FontAwesome size={16} name="trash-o" color="#EEE" />
+                  </TouchableOpacity>
+                </View>
               ))}
           </View>
         )}
         {loadedList && (
-          <View style={styles.container}>
+          <View style={{ ...styles.container, marginBottom: 20 }}>
             <TouchableOpacity
               style={styles.button}
               onPress={() => loadList(undefined)}

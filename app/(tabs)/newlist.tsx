@@ -201,7 +201,7 @@ export default function Tab() {
                   style={styles.button}
                   onPress={() => deleteSong(index)}
                 >
-                  <FontAwesome size={24} name="trash-o" color="#FFF" />
+                  <FontAwesome size={24} name="trash-o" color="#EEE" />
                 </TouchableOpacity>
               </View>
             ))}
