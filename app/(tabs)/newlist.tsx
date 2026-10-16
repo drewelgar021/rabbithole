@@ -168,13 +168,14 @@ export default function Tab() {
   function save() {
     if (!saveFileName) return;
     try {
-      const file = new File(Paths.cache, `${saveFileName}.list`);
+      const file = new File(Paths.document, `${saveFileName}.list`);
       if (file.exists) file.delete();
       file.create();
       file.write(JSON.stringify(list));
       setSaveModalVisibility(false);
       setSaveSuccessModalVisibility(true);
       setSaveFileName("");
+      setSaveError(false);
     } catch (error) {
       console.error(error);
       setSaveError(true);
