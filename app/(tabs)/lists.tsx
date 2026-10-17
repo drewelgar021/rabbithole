@@ -5,8 +5,12 @@ import { File, Directory, Paths } from "expo-file-system";
 import List from "../List";
 import QRCode from "react-qr-code";
 import { FontAwesome } from "@expo/vector-icons";
+import { z } from "zod"
 
 type Song = { title: string; artist: string };
+
+const listSchema = z.array(z.object({title: z.string(), artist: z.string()}));
+
 
 export default function Tab() {
   const [lists, setLists] = useState<(Directory | File)[]>([]);
@@ -34,7 +38,7 @@ export default function Tab() {
   function load(filename: string) {
     try {
       const file = new File(Paths.document, filename);
-      loadList(JSON.parse(file.textSync()));
+      loadList(listSchema.parse(JSON.parse(file.textSync())));
     } catch (error) {
       console.log(error);
       setFileOpenError(true);
