@@ -239,7 +239,7 @@ export default function Tab() {
           </View>
         )}
 
-        {songs.length + artists.length > 0 && !list && (
+        {songs.join("").length + artists.join("").length > 0 && !list && (
           <View style={styles.container}>
             <TouchableOpacity
               style={styles.buttonAccent}
