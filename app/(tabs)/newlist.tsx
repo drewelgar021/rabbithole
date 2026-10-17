@@ -12,6 +12,12 @@ import { useState } from "react";
 import List from "../List";
 import QRCode from "react-qr-code";
 import { File, Paths } from "expo-file-system";
+import {
+  CameraView,
+  useCameraPermissions,
+  BarcodeScanningResult,
+} from "expo-camera";
+import { z } from "zod";
 
 type Song = { title: string; artist: string };
 
@@ -24,6 +30,8 @@ genres. Your response should only contain the JSON array of song recommendations
 Do not use markdown code fences. Aim to provide songs from at least 1 artist that is not provided 
 by the user.`;
 
+const listSchema = z.array(z.object({ title: z.string(), artist: z.string() }));
+
 export default function Tab() {
   const [songs, setSongs] = useState<string[]>([]);
   const [artists, setArtists] = useState<string[]>([]);
@@ -33,6 +41,9 @@ export default function Tab() {
   const [saveSuccessModalVisibility, setSaveSuccessModalVisibility] =
     useState(false);
   const [saveError, setSaveError] = useState(false);
+  const [camera, requestCamera] = useCameraPermissions();
+  const [cameraVisible, setCameraVisible] = useState(false);
+  const [qrError, setQRError] = useState(false);
 
   /**
    * Updates a song in the `songs` state variable.
@@ -182,9 +193,56 @@ export default function Tab() {
     }
   }
 
+  /**
+   * Starts the camera, and requests permission if it hasn't been granted.
+   */
+  function startCamera() {
+    if (!camera || !camera.granted) {
+      requestCamera();
+    }
+
+    if (camera && camera.granted) {
+      setCameraVisible(true);
+    }
+  }
+
+  /**
+   * Sets the currently loaded list to the contents of the QR code if it is valid.
+   * Otherwise sets the qrError flag.
+   */
+  function handleBarcode(scan: BarcodeScanningResult) {
+    try {
+      setList(listSchema.parse(JSON.parse(scan.data)));
+    } catch (error) {
+      setQRError(true);
+    }
+    setCameraVisible(false);
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
+        {!list && (
+          <View style={styles.container}>
+            <TouchableOpacity
+              style={{ ...styles.buttonAccent, flex: 1, flexDirection: "row" }}
+              onPress={startCamera}
+            >
+              <FontAwesome
+                size={24}
+                name="qrcode"
+                color="#EEE"
+                style={{ marginRight: 10 }}
+              />
+              <Text style={styles.text}>From QR Code</Text>
+            </TouchableOpacity>
+            {qrError && (
+              <Text style={{ color: "#F00" }}>
+                QR code is not a valid list.
+              </Text>
+            )}
+          </View>
+        )}
         {!list && (
           <View style={styles.form}>
             <Text style={styles.h2}>Songs</Text>
@@ -335,6 +393,17 @@ export default function Tab() {
           </View>
         </Modal>
 
+        <Modal
+          visible={cameraVisible}
+          onDismiss={() => setCameraVisible(false)}
+        >
+          <CameraView
+            facing="back"
+            barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+            style={{ flex: 1 }}
+            onBarcodeScanned={handleBarcode}
+          />
+        </Modal>
       </ScrollView>
     </View>
   );

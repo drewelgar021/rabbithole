@@ -22,7 +22,13 @@
     },
     "scheme": "rabbithole",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow RabbitHole to access your camera."
+        }
+      ]
     ]
   }
 }
