@@ -43,6 +43,7 @@ export default function Tab() {
     useState(false);
   const [saveError, setSaveError] = useState(false);
   const [camera, requestCamera] = useCameraPermissions();
+  const [permissionError, setPermissionError] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(false);
   const [qrError, setQRError] = useState(false);
   const [aiLoading, setAILoading] = useState(false);
@@ -213,7 +214,10 @@ export default function Tab() {
     }
 
     if (camera && camera.granted) {
+      setPermissionError(false);
       setCameraVisible(true);
+    } else {
+      setPermissionError(true);
     }
   }
 
@@ -252,6 +256,11 @@ export default function Tab() {
                 QR code is not a valid list.
               </Text>
             )}
+            {permissionError &&
+              <Text style={{ color: "#F00" }}>
+                Camera permissions must be granted to use QR code scanning.
+              </Text>
+            }
           </View>
         )}
         {!list && (
