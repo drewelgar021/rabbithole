@@ -397,6 +397,18 @@ export default function Tab() {
           visible={cameraVisible}
           onDismiss={() => setCameraVisible(false)}
         >
+          <View
+            style={{
+              flex: 1,
+              alignItems: "flex-end",
+              maxHeight: 36,
+              backgroundColor: "#222",
+            }}
+          >
+            <TouchableOpacity onPress={() => setCameraVisible(false)}>
+              <FontAwesome size={36} color="#F00" name="close" />
+            </TouchableOpacity>
+          </View>
           <CameraView
             facing="back"
             barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
