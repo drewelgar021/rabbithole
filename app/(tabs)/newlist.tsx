@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import styles from "../styles";
@@ -44,6 +45,8 @@ export default function Tab() {
   const [camera, requestCamera] = useCameraPermissions();
   const [cameraVisible, setCameraVisible] = useState(false);
   const [qrError, setQRError] = useState(false);
+  const [aiLoading, setAILoading] = useState(false);
+  const [aiError, setAIError] = useState(false);
 
   /**
    * Updates a song in the `songs` state variable.
@@ -133,6 +136,10 @@ export default function Tab() {
    * songs.
    */
   async function generateList() {
+    if (aiLoading) return;
+
+    setAILoading(true);
+    setAIError(false);
     const response = await fetch(
       "https://comp2140-3ea651da.uqcloud.net/api/_ai/v1/chat/completions",
       {
@@ -157,10 +164,14 @@ export default function Tab() {
         }),
       },
     );
-    if (!response.ok)
+    if (!response.ok) {
+      setAILoading(false);
+      setAIError(true);
       throw new Error(`${response.status}: ${await response.text()}`);
+    }
     const data = await response.json();
     setList(JSON.parse(data.choices[0].message.content));
+    setAILoading(false);
   }
 
   /**
@@ -300,13 +311,22 @@ export default function Tab() {
         {songs.join("").length + artists.join("").length > 0 && !list && (
           <View style={styles.container}>
             <TouchableOpacity
-              style={styles.buttonAccent}
+              style={{ ...styles.buttonAccent, flexDirection: "row" }}
               onPress={generateList}
             >
               <Text style={styles.text}>Generate</Text>
+              {aiLoading && (
+                <ActivityIndicator color="#EEE" style={{ marginLeft: 5 }} />
+              )}
             </TouchableOpacity>
+            {aiError && (
+              <Text style={{ color: "#F00" }}>
+                Error communicating with the LLM.
+              </Text>
+            )}
           </View>
         )}
+
         {list && (
           <>
             <List songs={list} />
