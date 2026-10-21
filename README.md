@@ -25,6 +25,8 @@ From there they can be viewed and shared via QR code just like freshly generated
 from "My Lists".
 
 ## Testing Guide
+Setup: run `npm i` to install/update all dependencies.
+
 1. Navigate to the "New List" tab (loaded by default).
     - Demonstrates "App Design and Navigation".
 
